@@ -1,13 +1,12 @@
 import orchestrator from "tests/orchestrator.js";
 import { version as uuidVersion } from "uuid";
+import webserver from "infra/webserver.js";
 
-async function cleanDatabase() {
+beforeAll(async () => {
   await orchestrator.waitForAllServices();
   await orchestrator.clearDatabase();
   await orchestrator.runPendingMigrations();
-}
-
-beforeAll(cleanDatabase);
+});
 
 describe("GET /api/v1/users/[username]", () => {
   describe("Anonymous user", () => {
@@ -17,12 +16,13 @@ describe("GET /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/MesmoCase",
+        `${webserver.origin}/api/v1/users/MesmoCase`,
       );
 
       expect(response.status).toBe(200);
 
       const responseBody = await response.json();
+
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "MesmoCase",
@@ -42,12 +42,13 @@ describe("GET /api/v1/users/[username]", () => {
       });
 
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/casediferente",
+        `${webserver.origin}/api/v1/users/casediferente`,
       );
 
       expect(response.status).toBe(200);
 
       const responseBody = await response.json();
+
       expect(responseBody).toEqual({
         id: responseBody.id,
         username: "CaseDiferente",
@@ -63,7 +64,7 @@ describe("GET /api/v1/users/[username]", () => {
 
     test("With nonexistent username", async () => {
       const response = await fetch(
-        "http://localhost:3000/api/v1/users/UsuarioInexistent",
+        `${webserver.origin}/api/v1/users/UsuarioInexistent`,
       );
 
       expect(response.status).toBe(404);
